@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Nahrání PNG na Catbox</title>
+</head>
+<body>
+  <h2>Nahrání modrého čtverečku na Catbox</h2>
+  <button id="uploadBtn">Nahrát obrázek</button>
+  <p id="output"></p>
+
+  <script>
+    document.getElementById("uploadBtn").addEventListener("click", async () => {
+      try {
+        const response = await fetch("blue_square.png");
+        if (!response.ok) throw new Error("Soubor nebyl nalezen.");
+        const blob = await response.blob();
+        const file = new File([blob], "blue_square.png", { type: "image/png" });
+
+        const formData = new FormData();
+        formData.append("reqtype", "fileupload");
+        formData.append("fileToUpload", file);
+
+        const uploadResponse = await fetch("https://catbox.moe/user/api.php", {
+          method: "POST",
+          body: formData
+        });
+
+        const url = await uploadResponse.text();
+        document.getElementById("output").innerHTML = `Soubor nahrán: <a href="${url}" target="_blank">${url}</a>`;
+      } catch (error) {
+        document.getElementById("output").textContent = "Chyba: " + error.message;
+      }
+    });
+  </script>
+</body>
+</html>
