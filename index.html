@@ -2,36 +2,39 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8">
-  <title>Nahrání PNG na Catbox</title>
+  <title>Nahrání souboru na Catbox</title>
 </head>
 <body>
-  <h2>Nahrání modrého čtverečku na Catbox</h2>
-  <button id="uploadBtn">Nahrát obrázek</button>
+  <h2>Nahrání souboru na Catbox</h2>
+  <input type="file" id="fileInput" />
+  <button onclick="uploadFile()">Nahrát</button>
   <p id="output"></p>
 
   <script>
-    document.getElementById("uploadBtn").addEventListener("click", async () => {
+    async function uploadFile() {
+      const fileInput = document.getElementById("fileInput");
+      if (!fileInput.files.length) {
+        document.getElementById("output").textContent = "Nejprve vyber soubor.";
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append("reqtype", "fileupload");
+      formData.append("fileToUpload", file);
+
       try {
-        const response = await fetch("blue_square.png");
-        if (!response.ok) throw new Error("Soubor nebyl nalezen.");
-        const blob = await response.blob();
-        const file = new File([blob], "blue_square.png", { type: "image/png" });
-
-        const formData = new FormData();
-        formData.append("reqtype", "fileupload");
-        formData.append("fileToUpload", file);
-
-        const uploadResponse = await fetch("https://catbox.moe/user/api.php", {
+        const response = await fetch("https://catbox.moe/user/api.php", {
           method: "POST",
           body: formData
         });
 
-        const url = await uploadResponse.text();
+        const url = await response.text();
         document.getElementById("output").innerHTML = `Soubor nahrán: <a href="${url}" target="_blank">${url}</a>`;
       } catch (error) {
-        document.getElementById("output").textContent = "Chyba: " + error.message;
+        document.getElementById("output").textContent = "Chyba při nahrávání: " + error.message;
       }
-    });
+    }
   </script>
 </body>
 </html>
